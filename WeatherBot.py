@@ -1,8 +1,7 @@
-import pathlib
-
 import discord
 import pathlib
 import json
+import WeatherResponses
 
 
 def get_token(filename="discord-token.json"):
@@ -22,8 +21,10 @@ def get_token(filename="discord-token.json"):
 # Necessary setup in order to create event handlers
 TOKEN = get_token()
 intents = discord.Intents.default()
+intents.members = True  # very important setting, otherwise bot wouldn't see other users
 intents.message_content = True
 client = discord.Client(intents=intents)
+responses = WeatherResponses.WeatherResponses(client)
 
 
 @client.event
@@ -35,7 +36,11 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+
     if message.content.startswith('Are you up?') or 'up' in message.content:
-        await message.channel.send("Yes, I'm online and ready to go!")
+        await responses.are_you_up(message)
+
+    if 'miki' in message.content.lower():
+        await responses.mention_miki(message)
 
 client.run(TOKEN)
