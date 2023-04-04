@@ -19,12 +19,10 @@ def get_token(filename="discord-token.json"):
     return token
 
 
+# Necessary setup in order to create event handlers
 TOKEN = get_token()
-
-
 intents = discord.Intents.default()
 intents.message_content = True
-
 client = discord.Client(intents=intents)
 
 
@@ -37,8 +35,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.startswith('Are you up?') or message.content.contains('up'):
+    if message.content.startswith('Are you up?') or 'up' in message.content:
         await message.channel.send("Yes, I'm online and ready to go!")
-
 
 client.run(TOKEN)
