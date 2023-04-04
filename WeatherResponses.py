@@ -1,4 +1,6 @@
-import discord
+import json
+
+from discord import Message
 import functools
 from WeatherChatBotException import ChatBotException
 
@@ -39,13 +41,29 @@ class WeatherResponses:
         return _user
 
     @chatbot_response
-    async def are_you_up(self, message):
+    async def are_you_up(self, message: Message):
         await message.channel.send("**I'm online and ready to go!**")
 
     @chatbot_response
-    async def mention_miki(self, message):
+    async def mention_miki(self, message: Message):
         _user = self.get_user_from_channel("Miki")
         if _user is None:
             await message.channel.send("**Couldn't find Miki!**")
         else:
             await message.channel.send(f"**{_user.mention} is beautiful!**")
+
+    @chatbot_response
+    async def get_forecast_location(self, message: Message):
+        await message.channel.send("**What is the longitude and latitude that you want to have forecasts about?** "
+                                   "*(Example for usage: lon 43.75 lat 98.19)*")
+
+    @chatbot_response
+    async def set_forecast_location(self, message: Message):
+        with open("location", "w") as f:
+            splitted = message.content.split(" ")
+            dump = {
+                "lat": splitted[1],
+                "lon": splitted[3]
+            }
+            f.write(json.dumps(dump))
+        await message.channel.send("**Succesfully saved the location for future use!**")

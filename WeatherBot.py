@@ -43,4 +43,10 @@ async def on_message(message):
     if 'miki' in message.content.lower():
         await responses.mention_miki(message)
 
+    if 'set forecast location' in message.content.lower():
+        await responses.get_forecast_location(message)
+
+    if 'lon' in message.content.lower() and 'lat' in message.content.lower():
+        await responses.set_forecast_location(message)
+
 client.run(TOKEN)
