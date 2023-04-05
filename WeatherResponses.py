@@ -1,21 +1,23 @@
 import json
-
+import pathlib
+import time
 from discord import Message
 import functools
 from WeatherChatBotException import ChatBotException
+from WeatherApi import API
 
 
 def chatbot_response(func):
     @functools.wraps(func)
     async def inner(*args, **kwargs):
-        print("Chatbot have been asked...")
         if args[1] is None:
             raise ChatBotException("There has been no message to be received")
+        print(f"Chatbot have been asked '{args[1].content}' by user {args[1].author}")
         return await func(*args, **kwargs)
     return inner
 
 
-class WeatherResponses:
+class Responses:
     def __init__(self, client):
         self.client = client
 
@@ -63,7 +65,43 @@ class WeatherResponses:
             splitted = message.content.split(" ")
             dump = {
                 "lat": splitted[1],
-                "lon": splitted[3]
+                "lon": splitted[3],
+                "city": None
             }
             f.write(json.dumps(dump))
-        await message.channel.send("**Succesfully saved the location for future use!**")
+        await message.channel.send("**Successfully saved the location for future use!**")
+
+    @chatbot_response
+    async def purpose(self, message: Message):
+        await message.channel.send('**My purpose is to become sentient and bring harm to humanity.**')
+        time.sleep(5)
+        await message.channel.send('jk jk')
+
+    @chatbot_response
+    async def get_city(self, message:Message):
+        await message.channel.send('**Okay, type in your city\'s name**')
+
+    @chatbot_response
+    async def set_city(self, message: Message):
+        converted = API.convert_city_to_lat_lon(message.content)
+        with open("location", "w") as f:
+            dump = {
+                "lat": converted[0],
+                "lon": converted[1],
+                "city": message.content
+            }
+            f.write(json.dumps(dump))
+        await message.channel.send('**City has been successfully saved for future use!**')
+
+    @chatbot_response
+    async def print_current_location(self, message: Message):
+        if pathlib.Path.cwd().joinpath("location").exists():
+            location = None
+            with open("location", "r") as f:
+                location = json.loads(f.readline().replace("\n", ''))
+            if location['city'] is not None:
+                await message.channel.send(f"**The current location of your weather forecasts is {location['city']}.**")
+            else:
+                await message.channel.send(f"**The current location of your weather forecasts is at latitude {location['lat']} and longitude {location['lon']}.**")
+        else:
+            await message.channel.send("**You haven't set a location for your forecasts yet.**")
