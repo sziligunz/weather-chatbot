@@ -1,7 +1,7 @@
 # My Ignores
 discord-token.json
 weather-token.json
-location
+location*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
