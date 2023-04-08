@@ -22,17 +22,14 @@ def get_token(filename="discord-token.json"):
 class API:
 
     TOKEN = get_token("weather-token.json")
-    CURRENT_WEATHER = "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}"
+    CURRENT_WEATHER = "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}&units=metric"
     BASIC_WEATHER_MAP = "https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}"
     CITYNAME = "http://api.openweathermap.org/geo/1.0/direct?q={city name},{country code}&limit={limit}&appid={API key}"
 
     def __init__(self, location_name: str, lat=None, lon=None):
         self.location_name = location_name
         if lat is None and lon is None:
-            with open(self.location_name, "r") as f:
-                data = json.loads(f.readline())
-                self._lat = float(data["lat"])
-                self._lon = float(data["lon"])
+            self.update_location()
         else:
             self._lat = lat
             self._lon = lon
@@ -45,6 +42,12 @@ class API:
     def longitude(self):
         return self._lon
 
+    def update_location(self):
+        with open(self.location_name, "r") as f:
+            data = json.loads(f.readline())
+            self._lat = float(data["lat"])
+            self._lon = float(data["lon"])
+
     @staticmethod
     def convert_city_to_lat_lon(city_name) -> tuple:
         _url = API.CITYNAME\
@@ -56,3 +59,13 @@ class API:
         if not res:
             raise WeatherApiException("Couldn't convert city name to latitude and longitude", _url)
         return res[0]['lat'], res[0]['lon']
+
+    def get_weather_now(self):
+        _url = API.CURRENT_WEATHER\
+            .replace("{lat}", f"{self.latitude}")\
+            .replace("{lon}", f"{self.longitude}")\
+            .replace("{API key}", f"{self.TOKEN}")
+        res = requests.get(url=_url).json()
+        if not res:
+            raise WeatherApiException("Couldn't get current weather conditions", _url)
+        return res

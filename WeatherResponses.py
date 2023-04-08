@@ -34,8 +34,12 @@ class Responses:
 
     def __init__(self, client=None, lat=None, lon=None):
         self.client = client
-        self.location_name = f"location-{client.user}".replace(" ", "-").replace("#", "-")
-        self.API = API(self.location_name, lat, lon)
+        if client is None:
+            self.location_name = ""
+            self.API = None
+        else:
+            self.location_name = f"location-{client.user}".replace(" ", "-").replace("#", "-")
+            self.API = API(self.location_name, lat, lon)
 
     def get_user_from_channel(self, user_name, channel_name="weather-chatbot"):
         """
@@ -133,5 +137,5 @@ class Responses:
 
     @chatbot_response
     async def get_weather_now(self, message: Message):
-        pass
-        # self.API
+        # TODO print weather conditions in mark down
+        await message.channel.send(f"**The current weather conditions are:\n** *{self.API.get_weather_now()}*")
