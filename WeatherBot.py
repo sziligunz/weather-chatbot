@@ -1,11 +1,14 @@
 import discord
 import pathlib
 import json
+from discord import Colour
+
+from EmbedBuilder import BasicPrintBuilder
 from WeatherResponses import Responses
 
 
 async def send_simple_message(channel, message):
-    await channel.send(message)
+    await channel.send(embed=BasicPrintBuilder().new().title(message).color(Colour.red()).build())
 
 
 def get_token(filename="discord-token.json"):
@@ -57,7 +60,7 @@ async def on_message(message: discord.Message):
     for i in range(len(words)):
         words[i] = words[i].lower()
         words[i] = words[i].strip()
-    previous_message = [m.content.strip().lower() async for m in message.channel.history(limit=3, oldest_first=False)]
+    previous_message = [m.content.strip().lower() if m.content else m.embeds[0].title.lower().strip() async for m in message.channel.history(limit=3, oldest_first=False)]
 
     # check if at initialize there is no location file and set it if the user asks it
     if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() and Responses.INITIALIZE.lower() in previous_message and "yes" in words:
@@ -80,9 +83,11 @@ async def on_message(message: discord.Message):
 
     if 'up' in words:
         await responses.are_you_up(message)
+        return
 
     if 'miki' in words:
         await responses.mention_miki(message)
+        return
 
     if 'set forecast location' in message.content.lower():
         await responses.get_forecast_location(message)
@@ -90,9 +95,11 @@ async def on_message(message: discord.Message):
 
     if 'lon' in words and 'lat' in words and Responses.GET_FORECAST_LOCATION.lower() in previous_message:
         await responses.set_forecast_location(message)
+        return
 
     if 'purpose' in words:
         await responses.purpose(message)
+        return
 
     if 'set forecast city' in message.content.lower():
         await responses.get_city(message)
@@ -100,12 +107,23 @@ async def on_message(message: discord.Message):
 
     if Responses.GET_CITY.lower() in previous_message:
         await responses.set_city(message)
+        return
 
     if "current location" in message.content.lower():
         await responses.print_current_location(message)
+        return
 
     if "now" in words:
         await responses.get_weather_now(message)
+        return
+
+    if "today" in words:
+        await responses.get_day_forecast(message)
+        return
+
+    # TODO help function
+
+    await responses.did_not_recognize(message)
 
 
 # run the chatbot client
