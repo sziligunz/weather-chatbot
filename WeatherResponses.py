@@ -55,6 +55,7 @@ class Responses:
             self.location_name = f"location-{client.user}".replace(" ", "-").replace("#", "-")
             self.API = API(self.location_name, lat, lon)
         self.bb = BasicPrintBuilder()
+        self.wrb = WeatherReportBuilder()
 
     def get_user_from_channel(self, user_name, channel_name="weather-chatbot"):
         """
@@ -182,19 +183,39 @@ class Responses:
     async def get_weather_now(self, message: Message):
         current = self.API.get_weather_now()
         time.sleep(0.5)
-        builder = WeatherReportBuilder()
-        builder.title("Current Weather Conditions")\
+        self.wrb.new().title("Current Weather Conditions")\
             .color(11342935)\
             .description(f"Here is forecast on the weather at {datetime.datetime.now().strftime('%H:%M')}")\
             .thumbnail(API.get_weather_icon(current['weather'][0]['icon']))
-        builder += {"name": "Temperature", "value": f"{round(current['main']['temp'])} °C"}
-        builder += {"name": "Condition", "value": f"{current['weather'][0]['description']}"}
+        self.wrb += {"name": "Temperature", "value": f"{round(current['main']['temp'])} °C"}
+        self.wrb += {"name": "Condition", "value": f"{current['weather'][0]['description']}"}
         if "rain" in current.keys():
-            builder += {"name": "Rain", "value": f"Rain: **{int(current['rain']['1h'])}** mm"}
+            self.wrb += {"name": "Rain", "value": f"Rain: **{int(current['rain']['1h'])}** mm"}
         if "snow" in current.keys():
-            builder += {"name": "Snow", "value": f"Snow: **{int(current['snow']['1h'])}** mm"}
-        await message.channel.send(embed=builder.build())
+            self.wrb += {"name": "Snow", "value": f"Snow: **{int(current['snow']['1h'])}** mm"}
+        await message.channel.send(embed=self.wrb.build())
 
     @chatbot_response
+    @interactive
     async def get_day_forecast(self, message: Message):
-        pass
+        _5day = self.API.get_weather_5day()
+        time.sleep(0.5)
+        today = [m for m in _5day['list'] if datetime.datetime.now() < datetime.datetime.fromtimestamp(m['dt']) <
+                 datetime.datetime.now() + datetime.timedelta(days=1)]
+        self.wrb.new()\
+            .title("Today's Weather Conditions")\
+            .color(11342935)\
+            .set_most_common_thumbnail(today)\
+            .description(f"Here is the forecast on the weather from "
+                         f"{datetime.datetime.fromtimestamp(today[0]['dt']).strftime('%m-%d %H:%M')} to "
+                         f"{datetime.datetime.fromtimestamp(today[-1]['dt']).strftime('%m-%d %H:%M')}")
+        for _3h in today:
+            self.wrb\
+                + {"name": "Time", "value": f"{datetime.datetime.fromtimestamp(_3h['dt']).strftime('%H:%M')}"}\
+                + {"name": "Temperature", "value": f"{round(_3h['main']['temp'])} °C"}\
+                + {"name": "Condition", "value": f"{_3h['weather'][0]['description']}"}
+            if "rain" in _3h.keys():
+                self.wrb += {"name": "Rain", "value": f"**{float(_3h['rain']['3h'])}** mm", "inline": "False"}
+            if "snow" in _3h.keys():
+                self.wrb += {"name": "Snow", "value": f"**{float(_3h['snow']['3h'])}** mm", "inline": "False"}
+        await message.channel.send(embed=self.wrb.build())

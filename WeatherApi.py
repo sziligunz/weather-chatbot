@@ -26,6 +26,7 @@ class API:
     BASIC_WEATHER_MAP = "https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}"
     CITYNAME = "http://api.openweathermap.org/geo/1.0/direct?q={city name},{country code}&limit={limit}&appid={API key}"
     WEATHER_ICON = "https://openweathermap.org/img/wn/{icon}@2x.png"
+    WEATHER_TODAY = "https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}&units=metric"
 
     def __init__(self, location_name: str, lat=None, lon=None):
         self.location_name = location_name
@@ -79,3 +80,13 @@ class API:
         # if not res:
         #     raise WeatherApiException("Couldn't get icon png from API", _url)
         return _url
+
+    def get_weather_5day(self):
+        _url = API.WEATHER_TODAY \
+            .replace("{lat}", f"{self.latitude}") \
+            .replace("{lon}", f"{self.longitude}") \
+            .replace("{API key}", f"{self.TOKEN}")
+        res = requests.get(url=_url).json()
+        if not res:
+            raise WeatherApiException("Couldn't get today's weather conditions", _url)
+        return res
