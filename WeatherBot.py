@@ -56,7 +56,7 @@ async def on_message(message: discord.Message):
     if message.author == client.user:
         return
 
-    words = message.content.split(' ')
+    words = message.content.replace("?", "").replace("!", "").replace(".", "").replace(",", "").split(' ')
     for i in range(len(words)):
         words[i] = words[i].lower()
         words[i] = words[i].strip()
@@ -121,7 +121,17 @@ async def on_message(message: discord.Message):
         await responses.get_day_forecast(message)
         return
 
-    # TODO help function
+    # if "image" in words:
+    #     await responses.get_weather_image(message)
+    #     return
+
+    if "rain" in words:
+        await responses.get_rain(message)
+        return
+
+    if "help" in words:
+        await responses.get_help(message)
+        return
 
     await responses.did_not_recognize(message)
 

@@ -27,6 +27,7 @@ class API:
     CITYNAME = "http://api.openweathermap.org/geo/1.0/direct?q={city name},{country code}&limit={limit}&appid={API key}"
     WEATHER_ICON = "https://openweathermap.org/img/wn/{icon}@2x.png"
     WEATHER_TODAY = "https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}&units=metric"
+    WEATHER_IMAGE = "https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}"
 
     def __init__(self, location_name: str, lat=None, lon=None):
         self.location_name = location_name
@@ -56,7 +57,7 @@ class API:
             .replace("{city name}", f"{city_name}")\
             .replace("{country code}", "hu")\
             .replace("{limit}", "1")\
-            .replace("{API key}", f"{API.TOKEN}")
+            .replace("{API key}", API.TOKEN)
         res = requests.get(url=_url).json()
         if not res:
             raise WeatherApiException("Couldn't convert city name to latitude and longitude", _url)
@@ -66,7 +67,7 @@ class API:
         _url = API.CURRENT_WEATHER\
             .replace("{lat}", f"{self.latitude}")\
             .replace("{lon}", f"{self.longitude}")\
-            .replace("{API key}", f"{self.TOKEN}")
+            .replace("{API key}", API.TOKEN)
         res = requests.get(url=_url).json()
         if not res:
             raise WeatherApiException("Couldn't get current weather conditions", _url)
@@ -76,17 +77,28 @@ class API:
     def get_weather_icon(icon):
         _url = API.WEATHER_ICON\
             .replace("{icon}", icon)
-        # res = requests.get(url=_url)
-        # if not res:
-        #     raise WeatherApiException("Couldn't get icon png from API", _url)
         return _url
 
     def get_weather_5day(self):
         _url = API.WEATHER_TODAY \
             .replace("{lat}", f"{self.latitude}") \
             .replace("{lon}", f"{self.longitude}") \
-            .replace("{API key}", f"{self.TOKEN}")
+            .replace("{API key}", API.TOKEN)
         res = requests.get(url=_url).json()
         if not res:
             raise WeatherApiException("Couldn't get today's weather conditions", _url)
         return res
+
+    # @staticmethod
+    # def get_weather_image(self):
+    #     _url = API.WEATHER_IMAGE \
+    #         .replace("{API key}", API.TOKEN)\
+    #         .replace("{layer}", "precipitation_new")\
+    #         .replace("{z}", str(1))\
+    #         .replace("{x}", str(1))\
+    #         .replace("{y}", str(1))
+    #     # res = requests.get(url=_url)
+    #     # if not res:
+    #     #     raise WeatherApiException("Couldn't get weather image", _url)
+    #     # return res
+    #     return _url

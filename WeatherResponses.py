@@ -44,7 +44,7 @@ class Responses:
     NO_CITY = "**Couldn't find** a city like this. Maybe you've misspelled it."
     INITIALIZE = "Before you start asking me questions you should set the forecast location. Would you like to do that right now?"
     WRONG_FORECAST_LOCATION_FORMAT = "You gave the location in a wrong format. *(Example for usage: lat 43.75 lon 98.19)*"
-    DID_NOT_RECOGNIZE = "I don't recognize your question in my implementaion. *(Try using the 'help' command)*"
+    DID_NOT_RECOGNIZE = "I don't recognize your question. *(Try using the 'help' command)*"
 
     def __init__(self, client=None, lat=None, lon=None):
         self.client = client
@@ -206,7 +206,7 @@ class Responses:
             .title("Today's Weather Conditions")\
             .color(11342935)\
             .set_most_common_thumbnail(today)\
-            .description(f"Here is the forecast on the weather from "
+            .description(f"Forecasts from "
                          f"{datetime.datetime.fromtimestamp(today[0]['dt']).strftime('%m-%d %H:%M')} to "
                          f"{datetime.datetime.fromtimestamp(today[-1]['dt']).strftime('%m-%d %H:%M')}")
         for _3h in today:
@@ -218,4 +218,53 @@ class Responses:
                 self.wrb += {"name": "Rain", "value": f"**{float(_3h['rain']['3h'])}** mm", "inline": "False"}
             if "snow" in _3h.keys():
                 self.wrb += {"name": "Snow", "value": f"**{float(_3h['snow']['3h'])}** mm", "inline": "False"}
+        await message.channel.send(embed=self.wrb.build())
+
+    # @chatbot_response
+    # @interactive
+    # async def get_weather_image(self, message: Message):
+    #     await message.channel.send(embed=self.bb.new().title("asd").color(Colour.green())\
+    #     .build().set_image(url=self.API.get_weather_image()))
+
+    @chatbot_response
+    @interactive
+    async def get_rain(self, message: Message):
+        _5day = self.API.get_weather_5day()
+        time.sleep(0.5)
+        today = [m for m in _5day['list'] if datetime.datetime.now() < datetime.datetime.fromtimestamp(m['dt']) <
+                 datetime.datetime.now() + datetime.timedelta(days=1)]
+        self.wrb.new()\
+            .title("Rain")\
+            .color(11342935)\
+            .description("There won't be any rain today.")
+        for i in today:
+            if "rain" in i.keys():
+                self.wrb.description(f"There will be rain today.")\
+                    .thumbnail(API.get_weather_icon(i["weather"][0]["icon"]))
+                break
+            elif "snow" in i.keys():
+                self.wrb.description(f"There will be snow today.")\
+                    .thumbnail(API.get_weather_icon(i["weather"][0]["icon"]))
+                break
+        _index = 0
+        for i in today:
+            if "rain" in i.keys():
+                self.wrb + {"name": "Time", "value": f"{datetime.datetime.fromtimestamp(i['dt']).strftime('%H:%M')}"}\
+                    + {"name": "Rain", "value": f"{i['rain']['3h']} mm"} + {"empty": True}
+            if "snow" in i.keys():
+                self.wrb + {"name": "Time", "value": f"{datetime.datetime.fromtimestamp(i['dt']).strftime('%H:%M')}"}\
+                    + {"name": "Snow", "value": f"{i['snow']['3h']} mm "} + {"empty": True}
+        await message.channel.send(embed=self.wrb.build())
+
+    @chatbot_response
+    @interactive
+    async def get_help(self, message: Message):
+        self.wrb.new().title("Help").color(Colour.green()).description("Here are the commands that you can use.")\
+            + {"name": "are you up", "value": "Prints if the bot is online.", "inline": "False"}\
+            + {"name": "set forecast location", "value": "Sets the location of the weather forecasts.", "inline": "False"}\
+            + {"name": "set forecast city", "value": "Sets the city location of the weather forecasts.", "inline": "False"}\
+            + {"name": "current location", "value": "Prints the current forecast location.", "inline": "False"}\
+            + {"name": "now", "value": "Prints the current weather conditions.", "inline": "False"}\
+            + {"name": "today", "value": "Prints today's weather conditions", "inline": "False"}\
+            + {"name": "rain", "value": "Prints if there's going to be any rain today.", "inline": "False"}
         await message.channel.send(embed=self.wrb.build())

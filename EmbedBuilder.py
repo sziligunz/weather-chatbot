@@ -55,11 +55,13 @@ class WeatherReportBuilder(BasicPrintBuilder):
 
     # Adding arguments to the embed
     def __add__(self, other):
+        if isinstance(other, dict) and "empty" in other.keys():
+            self._embed.add_field(name='\u200b', value='\u200b', inline=True)
         if isinstance(other, dict) and "name" in other.keys() and "value" in other.keys():
             if "inline" in other.keys():
                 self._embed.add_field(name=other["name"], value=other["value"], inline=other["inline"])
             else:
                 self._embed.add_field(name=other["name"], value=other["value"], inline=True)
             if "index" in other.keys():
-                self._embed.insert_field_at(other["index"], name=other["name"], value=other["value"], inline=True)
+                self._embed.insert_field_at(int(other["index"]), name=other["name"], value=other["value"], inline=True)
         return self

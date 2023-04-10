@@ -15,4 +15,3 @@ basic weather data.
 - Get current weather conditions
 - Get weather conditions for the whole day
 - Get if there's going to be any rain during the current day
-- Get current weather image
