@@ -60,7 +60,7 @@ International querying has not been implemented yet.*
 
 ----
 
-# Unittest
+## Unittest
 
 | Name                       | Statements | Missed  | Covered |
 |----------------------------|------------|---------|---------|
@@ -69,3 +69,28 @@ International querying has not been implemented yet.*
 | WeatherChatBotException.py | 13         | 4       | 69%     |
 | WeatherResponses.py        | 222        | 130     | 41%     |
 | **TOTAL**                  | **455**    | **212** | **53%** |
+
+----
+
+## Installation
+
+1. Clone the repository: `git clone https://github.com/sziligunz/weather-chatbot`
+2. Create virtual environment: `virtualenv venv`
+3. Activate virtual environment: `venv/Scripts/activate`
+4. Install requirements: `pip install -r requirements.txt`
+5. Add the token files to root: 
+   1. `discord-token.json`:
+      ```javascript
+      {
+        "token": "MTA5MjQyNjM5MjIwMjkxOTk5Nw.GMKWh1.GE3opKoPCjkf1Cex-lQNoTl6AgJ8qZ7pxrYTwU",
+        "creation-time": "2023-04-03T14:44:00"
+      }
+      ```
+   2. `weather-token.json`:
+      ```javascript
+      {
+        "token": "5fa35ae8d45a16ee2ac3f922580e8bef",
+        "creation-time": "2023-04-04T15:11:00"
+      }
+      ```
+6. Launch the bot: `python WeatherBot.py`
