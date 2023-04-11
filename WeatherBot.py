@@ -33,6 +33,8 @@ intents.members = True  # very important setting, otherwise bot wouldn't see oth
 intents.message_content = True
 client = discord.Client(intents=intents)
 LOCATION_NAME = ""
+# creating an empty Responses object,
+# because we have to wait for the client to be created in order to create a valid Responses object
 responses = Responses()
 
 
@@ -57,25 +59,34 @@ async def on_message(message: discord.Message):
     if message.author == client.user:
         return
 
+    # scraping the previous and present user input
     words = message.content.replace("?", "").replace("!", "").replace(".", "").replace(",", "").split(' ')
-    for i in range(len(words)):
-        words[i] = words[i].lower()
-        words[i] = words[i].strip()
-    previous_message = [m.content.strip().lower() if m.content else m.embeds[0].title.lower().strip() async for m in message.channel.history(limit=3, oldest_first=False)]
+    words = [w.lower().strip() for w in words]
+    previous_message = [m.content.strip().lower()
+                        if m.content else m.embeds[0].title.lower().strip()
+                        async for m in message.channel.history(limit=3, oldest_first=False)]
 
     # check if at initialize there is no location file and set it if the user asks it
-    if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() and Responses.INITIALIZE.lower() in previous_message and "yes" in words:
+    if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() \
+            and Responses.INITIALIZE.lower() in previous_message \
+            and "yes" in words:
         await responses.get_city(message)
         return
+    # process user response
     if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() and Responses.GET_CITY.lower() in previous_message:
         await responses.set_city(message)
         return
 
-    # check if the location file has been destroyed and set it if the user asks it
-    if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() and Responses.INITIALIZE.lower() not in previous_message and "yes" not in words:
+    # check if the location file has been destroyed
+    if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() \
+            and Responses.INITIALIZE.lower() not in previous_message \
+            and "yes" not in words:
         await responses.no_location_set(message)
         return
-    if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() and "yes" in words and Responses.NO_LOCATION_SET.lower() in previous_message and Responses.INITIALIZE.lower() not in previous_message:
+    # if user said yes initiate city setup process
+    if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() \
+            and "yes" in words and Responses.NO_LOCATION_SET.lower() in previous_message \
+            and Responses.INITIALIZE.lower() not in previous_message:
         await responses.get_city(message)
         return
     if not pathlib.Path().cwd().joinpath(LOCATION_NAME).exists() and Responses.GET_CITY.lower() in previous_message and Responses.INITIALIZE.lower() not in previous_message:
