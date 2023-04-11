@@ -11,6 +11,7 @@ from WeatherChatBotException import ChatBotException, WeatherApiException
 from WeatherApi import API
 
 
+# simple decorator: if there's no message given for the bot to answer to raise a custom error
 def chatbot_response(func):
     @functools.wraps(func)
     async def inner(*args, **kwargs):
@@ -21,6 +22,7 @@ def chatbot_response(func):
     return inner
 
 
+# simple decorator: simulates the bot typing in the responses
 def interactive(func):
     @functools.wraps(func)
     async def inner(*args, **kwargs):
@@ -34,6 +36,7 @@ def interactive(func):
 
 class Responses:
 
+    # BOT responses, could read them out of a file, but for sake of convenience this is a better solution
     NO_LOCATION_SET = "You haven't set a location yet. I can't tell you the weather forecast. Do you want to set it now?"
     ARE_YOU_UP = "I'm online and ready to go!"
     GET_FORECAST_LOCATION = "What is the longitude and latitude that you want to have forecasts about? *(Example for usage: lat 43.75 lon 98.19)*"
@@ -47,6 +50,8 @@ class Responses:
     DID_NOT_RECOGNIZE = "I don't recognize your question. *(Try using the 'help' command)*"
     GET_NOW_CITY = "Alright, give me a city name."
 
+    # have to check if there's no input in __init__(),
+    # because in WeatherBot.py (line 38) we create one without any parameter
     def __init__(self, client=None, lat=None, lon=None):
         self.client = client
         if client is None:
@@ -55,9 +60,11 @@ class Responses:
         else:
             self.location_name = f"location-{client.user}".replace(" ", "-").replace("#", "-")
             self.API = API(self.location_name, lat, lon)
+        # these embed builder objects makes the responses so much nicer
         self.bb = BasicPrintBuilder()
         self.wrb = WeatherReportBuilder()
 
+    # used for getting a member of the channel
     def get_user_from_channel(self, user_name, channel_name="weather-chatbot"):
         _user = None
         for channel in self.client.get_all_channels():
@@ -193,6 +200,7 @@ class Responses:
             self.wrb.location(f"Report from {kwargs['city_name']}")
         else:
             self.wrb.attach_location(self.API)
+        # adding custom fields to the embeds
         self.wrb += {"name": "Temperature", "value": f"{round(current['main']['temp'])} °C"}
         self.wrb += {"name": "Condition", "value": f"{current['weather'][0]['description']}"}
         if "rain" in current.keys():
@@ -278,6 +286,7 @@ class Responses:
     @chatbot_response
     @interactive
     async def get_help(self, message: Message):
+        # these could be read out of a file too, but still for sake of convenience this is better
         self.wrb.new().title("Help").color(Colour.green()).description("Here are the commands that you can use.")\
             + {"name": "are you up", "value": "Prints if the bot is online.", "inline": "False"}\
             + {"name": "set forecast location", "value": "Sets the location of the weather forecasts.", "inline": "False"}\
