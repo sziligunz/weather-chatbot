@@ -18,10 +18,11 @@ def get_token(filename="discord-token.json"):
         :return: The token that is used to run the discord client.
         :rtype: str
     """
-    path = pathlib.Path.cwd().joinpath(filename).__str__()
+    path = pathlib.Path.cwd().joinpath(filename)
     token = None
-    with open(path, "r") as f:
-        token = json.load(f)['token']
+    if path.exists():
+        with open(path, "r") as f:
+            token = json.load(f)['token']
     return token
 
 

@@ -57,3 +57,15 @@ International querying has not been implemented yet.*
   - line too long
 - `WeatherChatBotException.py`:
   - line too long
+
+----
+
+# Unittest
+
+| Name                       | Statements | Missed  | Covered |
+|----------------------------|------------|---------|---------|
+| EmbedBuilder.py            | 58         | 36      | 38%     |
+| WeatherApi.py              | 72         | 6       | 92%     |
+| WeatherChatBotException.py | 13         | 4       | 69%     |
+| WeatherResponses.py        | 222        | 130     | 41%     |
+| **TOTAL**                  | **455**    | **212** | **53%** |

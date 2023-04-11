@@ -1,7 +1,8 @@
 from unittest import TestCase
 
-import WeatherChatBotException
+from WeatherChatBotException import WeatherApiException, ChatBotException
 from WeatherApi import API
+from WeatherResponses import Responses
 
 
 class TestAPI(TestCase):
@@ -28,7 +29,7 @@ class TestAPI(TestCase):
         self.assertTrue("weather" in now.keys())
 
     def test_get_weather_now_wrong_city(self):
-        with self.assertRaises(WeatherChatBotException.WeatherApiException):
+        with self.assertRaises(WeatherApiException):
             self.api.get_weather_now(city_name="asdasd")
 
     def test_get_weather_icon(self):
@@ -43,5 +44,81 @@ class TestAPI(TestCase):
         self.assertTrue("list" in _5day.keys())
 
     def test_get_weather_5day_wrong_city(self):
-        with self.assertRaises(WeatherChatBotException.WeatherApiException):
+        with self.assertRaises(WeatherApiException):
             self.api.get_weather_5day(city_name="asdasd")
+
+
+class TestResponses(TestCase):
+    responses = Responses()
+
+    async def test_did_not_recognize(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_no_location_set(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_up(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_mention_miki(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_forecast_location(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_set_forecast_location(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_purpose(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_city(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_set_city(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_current_location(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_now(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_today(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_rain(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_help(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_now_city(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_set_now_city(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_get_today_city(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
+
+    async def test_set_today_city(self):
+        with self.assertRaises(ChatBotException):
+            await self.responses.did_not_recognize()
