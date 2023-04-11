@@ -12,6 +12,18 @@ basic weather data.
 
 ## Features
 
-- Get current weather conditions
-- Get weather conditions for the whole day
+- Get current weather conditions *(this is from pre saved city locations)*
+- Get weather conditions for the whole day *(this is from pre saved city locations)*
 - Get if there's going to be any rain during the current day
+- Get current weather from a city of your choice
+- Get weather conditions for the whole day from a city of you choice
+
+*Disclaimer: weather data querying works with only hungarian cities.
+International querying has not been implemented yet.*
+
+----
+
+## Work in progress
+
+- International weather forecast querying
+- Weather images

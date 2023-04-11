@@ -36,6 +36,7 @@ class API:
         else:
             self._lat = lat
             self._lon = lon
+            self._city = ""
 
     @property
     def latitude(self):
@@ -45,11 +46,17 @@ class API:
     def longitude(self):
         return self._lon
 
+    @property
+    def city_name(self):
+        return self._city
+
     def update_location(self):
         with open(self.location_name, "r") as f:
             data = json.loads(f.readline())
             self._lat = float(data["lat"])
             self._lon = float(data["lon"])
+            if "city" in data.keys():
+                self._city = data["city"]
 
     @staticmethod
     def convert_city_to_lat_lon(city_name) -> tuple:
@@ -63,11 +70,19 @@ class API:
             raise WeatherApiException("Couldn't convert city name to latitude and longitude", _url)
         return res[0]['lat'], res[0]['lon']
 
-    def get_weather_now(self):
-        _url = API.CURRENT_WEATHER\
-            .replace("{lat}", f"{self.latitude}")\
-            .replace("{lon}", f"{self.longitude}")\
-            .replace("{API key}", API.TOKEN)
+    def get_weather_now(self, **kwargs):
+        _url = ""
+        if "city_name" in kwargs.keys():
+            lat, lon = API.convert_city_to_lat_lon(kwargs["city_name"])
+            _url = API.CURRENT_WEATHER \
+                .replace("{lat}", f"{lat}") \
+                .replace("{lon}", f"{lon}") \
+                .replace("{API key}", API.TOKEN)
+        else:
+            _url = API.CURRENT_WEATHER\
+                .replace("{lat}", f"{self.latitude}")\
+                .replace("{lon}", f"{self.longitude}")\
+                .replace("{API key}", API.TOKEN)
         res = requests.get(url=_url).json()
         if not res:
             raise WeatherApiException("Couldn't get current weather conditions", _url)
@@ -79,11 +94,19 @@ class API:
             .replace("{icon}", icon)
         return _url
 
-    def get_weather_5day(self):
-        _url = API.WEATHER_TODAY \
-            .replace("{lat}", f"{self.latitude}") \
-            .replace("{lon}", f"{self.longitude}") \
-            .replace("{API key}", API.TOKEN)
+    def get_weather_5day(self, **kwargs):
+        _url = ""
+        if "city_name" in kwargs.keys():
+            lat, lon = API.convert_city_to_lat_lon(kwargs["city_name"])
+            _url = API.WEATHER_TODAY \
+                .replace("{lat}", f"{lat}") \
+                .replace("{lon}", f"{lon}") \
+                .replace("{API key}", API.TOKEN)
+        else:
+            _url = API.WEATHER_TODAY \
+                .replace("{lat}", f"{self.latitude}") \
+                .replace("{lon}", f"{self.longitude}") \
+                .replace("{API key}", API.TOKEN)
         res = requests.get(url=_url).json()
         if not res:
             raise WeatherApiException("Couldn't get today's weather conditions", _url)

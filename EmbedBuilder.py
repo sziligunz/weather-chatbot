@@ -23,6 +23,14 @@ class BasicPrintBuilder:
         self._description = description
         return self
 
+    def location(self, location):
+        self._embed.set_footer(text=location)
+        return self
+
+    def attach_location(self, API):
+        self.location(f"Report from {API.city_name}")
+        return self
+
     def build(self):
         self._embed.color = self._color
         self._embed.title = self._title

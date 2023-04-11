@@ -14,7 +14,7 @@ from WeatherApi import API
 def chatbot_response(func):
     @functools.wraps(func)
     async def inner(*args, **kwargs):
-        if args[1] is None:
+        if len(args) == 1:
             raise ChatBotException("There has been no message to be received")
         print(f"Chatbot have been asked '{args[1].content}' by user {args[1].author}")
         return await func(*args, **kwargs)
@@ -35,16 +35,17 @@ def interactive(func):
 class Responses:
 
     NO_LOCATION_SET = "You haven't set a location yet. I can't tell you the weather forecast. Do you want to set it now?"
-    ARE_YOU_UP = "I'm online and **ready** to go!"
+    ARE_YOU_UP = "I'm online and ready to go!"
     GET_FORECAST_LOCATION = "What is the longitude and latitude that you want to have forecasts about? *(Example for usage: lat 43.75 lon 98.19)*"
-    SET_FORECAST_LOCATION = "Location has been **successfully** saved for future use!"
+    SET_FORECAST_LOCATION = "Location has been successfully saved for future use!"
     PURPOSE = "My purpose is to become sentient and bring harm to humanity."
     GET_CITY = "Okay, type in your city's name *(If you're having trouble with saving your city please try the 'set forecast location' command)*"
-    SET_CITY = "City has been **successfully** saved for future use!"
-    NO_CITY = "**Couldn't find** a city like this. Maybe you've misspelled it."
+    SET_CITY = "City has been successfully saved for future use!"
+    NO_CITY = "Couldn't find a city like this. Maybe you've misspelled it."
     INITIALIZE = "Before you start asking me questions you should set the forecast location. Would you like to do that right now?"
     WRONG_FORECAST_LOCATION_FORMAT = "You gave the location in a wrong format. *(Example for usage: lat 43.75 lon 98.19)*"
     DID_NOT_RECOGNIZE = "I don't recognize your question. *(Try using the 'help' command)*"
+    GET_NOW_CITY = "Alright, give me a city name."
 
     def __init__(self, client=None, lat=None, lon=None):
         self.client = client
@@ -90,7 +91,7 @@ class Responses:
 
     @chatbot_response
     @interactive
-    async def are_you_up(self, message: Message):
+    async def get_up(self, message: Message):
         await message.channel.send(embed=self.bb.new().title(Responses.ARE_YOU_UP).color(Colour.green()).build())
 
     @chatbot_response
@@ -122,6 +123,7 @@ class Responses:
                     "city": None
                 }
                 f.write(json.dumps(dump))
+            self.API.update_location()
             await message.channel.send(
                 embed=self.bb.new().title(Responses.SET_FORECAST_LOCATION).color(Colour.green()).build()
             )
@@ -132,7 +134,7 @@ class Responses:
 
     @chatbot_response
     @interactive
-    async def purpose(self, message: Message):
+    async def get_purpose(self, message: Message):
         await message.channel.send(embed=self.bb.new().title(Responses.PURPOSE).color(Colour.dark_magenta()).build())
         time.sleep(5)
         await message.channel.send(embed=self.bb.new().title('jk jk').color(Colour.green()).build())
@@ -159,11 +161,12 @@ class Responses:
                 "city": message.content
             }
             f.write(json.dumps(dump))
+        self.API.update_location()
         await message.channel.send(embed=self.bb.new().color(Colour.green()).title(Responses.SET_CITY).build())
 
     @chatbot_response
     @interactive
-    async def print_current_location(self, message: Message):
+    async def get_current_location(self, message: Message):
         self.bb.new()
         if pathlib.Path.cwd().joinpath(self.location_name).exists():
             self.bb.color(Colour.green())
@@ -180,13 +183,26 @@ class Responses:
 
     @chatbot_response
     @interactive
-    async def get_weather_now(self, message: Message):
-        current = self.API.get_weather_now()
+    async def get_now(self, message: Message, **kwargs):
+        current = None
+        try:
+            if "city_name" in kwargs.keys():
+                current = self.API.get_weather_now(city_name=kwargs["city_name"])
+            else:
+                current = self.API.get_weather_now()
+        except WeatherApiException as wae:
+            print(wae)
+            await message.channel.send(embed=self.bb.new().title(Responses.NO_CITY).color(Colour.red()).build())
+            return
         time.sleep(0.5)
         self.wrb.new().title("Current Weather Conditions")\
             .color(11342935)\
             .description(f"Here is forecast on the weather at {datetime.datetime.now().strftime('%H:%M')}")\
             .thumbnail(API.get_weather_icon(current['weather'][0]['icon']))
+        if "city_name" in kwargs.keys():
+            self.wrb.location(f"Report from {kwargs['city_name']}")
+        else:
+            self.wrb.attach_location(self.API)
         self.wrb += {"name": "Temperature", "value": f"{round(current['main']['temp'])} °C"}
         self.wrb += {"name": "Condition", "value": f"{current['weather'][0]['description']}"}
         if "rain" in current.keys():
@@ -197,8 +213,17 @@ class Responses:
 
     @chatbot_response
     @interactive
-    async def get_day_forecast(self, message: Message):
-        _5day = self.API.get_weather_5day()
+    async def get_today(self, message: Message, **kwargs):
+        _5day = None
+        try:
+            if "city_name" in kwargs.keys():
+                _5day = self.API.get_weather_5day(city_name=kwargs["city_name"])
+            else:
+                _5day = self.API.get_weather_5day()
+        except WeatherApiException as wae:
+            print(wae)
+            await message.channel.send(embed=self.bb.new().title(Responses.NO_CITY).color(Colour.red()).build())
+            return
         time.sleep(0.5)
         today = [m for m in _5day['list'] if datetime.datetime.now() < datetime.datetime.fromtimestamp(m['dt']) <
                  datetime.datetime.now() + datetime.timedelta(days=1)]
@@ -209,6 +234,10 @@ class Responses:
             .description(f"Forecasts from "
                          f"{datetime.datetime.fromtimestamp(today[0]['dt']).strftime('%m-%d %H:%M')} to "
                          f"{datetime.datetime.fromtimestamp(today[-1]['dt']).strftime('%m-%d %H:%M')}")
+        if "city_name" in kwargs.keys():
+            self.wrb.location(f"Report from {kwargs['city_name']}")
+        else:
+            self.wrb.attach_location(self.API)
         for _3h in today:
             self.wrb\
                 + {"name": "Time", "value": f"{datetime.datetime.fromtimestamp(_3h['dt']).strftime('%H:%M')}"}\
@@ -236,7 +265,8 @@ class Responses:
         self.wrb.new()\
             .title("Rain")\
             .color(11342935)\
-            .description("There won't be any rain today.")
+            .description("There won't be any rain today.")\
+            .attach_location(self.API)
         for i in today:
             if "rain" in i.keys():
                 self.wrb.description(f"There will be rain today.")\
@@ -268,3 +298,23 @@ class Responses:
             + {"name": "today", "value": "Prints today's weather conditions", "inline": "False"}\
             + {"name": "rain", "value": "Prints if there's going to be any rain today.", "inline": "False"}
         await message.channel.send(embed=self.wrb.build())
+
+    @chatbot_response
+    @interactive
+    async def get_now_city(self, message: Message):
+        await message.channel.send(embed=self.bb.new().color(Colour.green()).title(Responses.GET_NOW_CITY).build())
+
+    @chatbot_response
+    @interactive
+    async def set_now_city(self, message: Message):
+        await self.get_now(message, city_name=message.content)
+
+    @chatbot_response
+    @interactive
+    async def get_today_city(self, message: Message):
+        await message.channel.send(embed=self.bb.new().color(Colour.green()).title(Responses.GET_NOW_CITY).build())
+
+    @chatbot_response
+    @interactive
+    async def set_today_city(self, message: Message):
+        await self.get_today(message, city_name=message.content)

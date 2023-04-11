@@ -82,7 +82,7 @@ async def on_message(message: discord.Message):
         return
 
     if 'up' in words:
-        await responses.are_you_up(message)
+        await responses.get_up(message)
         return
 
     if 'miki' in words:
@@ -98,7 +98,7 @@ async def on_message(message: discord.Message):
         return
 
     if 'purpose' in words:
-        await responses.purpose(message)
+        await responses.get_purpose(message)
         return
 
     if 'set forecast city' in message.content.lower():
@@ -110,15 +110,31 @@ async def on_message(message: discord.Message):
         return
 
     if "current location" in message.content.lower():
-        await responses.print_current_location(message)
+        await responses.get_current_location(message)
+        return
+
+    if "now city" in message.content.lower():
+        await responses.get_now_city(message)
+        return
+
+    if "now city" in previous_message and Responses.GET_NOW_CITY.lower() in previous_message:
+        await responses.set_now_city(message)
+        return
+
+    if "today city" in message.content.lower():
+        await responses.get_today_city(message)
+        return
+
+    if "today city" in previous_message and Responses.GET_NOW_CITY.lower() in previous_message:
+        await responses.set_today_city(message)
         return
 
     if "now" in words:
-        await responses.get_weather_now(message)
+        await responses.get_now(message)
         return
 
     if "today" in words:
-        await responses.get_day_forecast(message)
+        await responses.get_today(message)
         return
 
     # if "image" in words:
