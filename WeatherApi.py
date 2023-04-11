@@ -5,6 +5,7 @@ import requests
 from WeatherChatBotException import WeatherApiException
 
 
+# same get_token function as in WeatherBot.py but can't import it, because of circle import
 def get_token(filename="discord-token.json"):
     """
         :param filename: The name of the token configuration file.
@@ -19,6 +20,7 @@ def get_token(filename="discord-token.json"):
     return token
 
 
+# this class contains all the api requests to https://openweathermap.org
 class API:
 
     TOKEN = get_token("weather-token.json")
@@ -29,6 +31,8 @@ class API:
     WEATHER_TODAY = "https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}&units=metric"
     WEATHER_IMAGE = "https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}"
 
+    # we have to check if the API object gets no parameters either,
+    # because Responses object creates a field of API itself
     def __init__(self, location_name: str, lat=None, lon=None):
         self.location_name = location_name
         if lat is None and lon is None:
@@ -58,6 +62,8 @@ class API:
             if "city" in data.keys():
                 self._city = data["city"]
 
+    # this function converts a regular hungarian city name to latitude and longitude values
+    # (the api uses latitude and longitude values in its api requests)
     @staticmethod
     def convert_city_to_lat_lon(city_name) -> tuple:
         _url = API.CITYNAME\
@@ -70,6 +76,7 @@ class API:
             raise WeatherApiException("Couldn't convert city name to latitude and longitude", _url)
         return res[0]['lat'], res[0]['lon']
 
+    # return the current weather conditions
     def get_weather_now(self, **kwargs):
         _url = ""
         if "city_name" in kwargs.keys():
@@ -88,12 +95,14 @@ class API:
             raise WeatherApiException("Couldn't get current weather conditions", _url)
         return res
 
+    # return a _url string that is referring to a weather condition image
     @staticmethod
     def get_weather_icon(icon):
         _url = API.WEATHER_ICON\
             .replace("{icon}", icon)
         return _url
 
+    # return the weather forecast for 5 days ahead in 3 hour intervals
     def get_weather_5day(self, **kwargs):
         _url = ""
         if "city_name" in kwargs.keys():

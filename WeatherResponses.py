@@ -34,6 +34,7 @@ def interactive(func):
     return inner
 
 
+# this class contains all the responses that the bot makes and the logic behind them
 class Responses:
 
     # BOT responses, could read them out of a file, but for sake of convenience this is a better solution

@@ -54,6 +54,7 @@ async def on_ready():
         responses = Responses(client)
 
 
+# here is the logic that decides what to answer to what question
 @client.event
 async def on_message(message: discord.Message):
     if message.author == client.user:
