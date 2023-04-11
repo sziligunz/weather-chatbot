@@ -59,16 +59,6 @@ class Responses:
         self.wrb = WeatherReportBuilder()
 
     def get_user_from_channel(self, user_name, channel_name="weather-chatbot"):
-        """
-        Returns a discord.User from the given channel. If there is no
-        given channel_name the function searches in the weather-bot channel
-
-        :param user_name: The name of the user to search for
-        :type user_name: str
-        :param channel_name: The name of the channel to search in
-        :type channel_name: str
-        :return: discord.User
-        """
         _user = None
         for channel in self.client.get_all_channels():
             if channel.name == channel_name:
