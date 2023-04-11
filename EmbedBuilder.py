@@ -4,6 +4,8 @@ from discord import Embed
 import WeatherApi
 
 
+# this class is used for building embeds in an easier way
+# the built-in constructor and setter functions work like a builder too but their syntax is a little inconvenience
 class BasicPrintBuilder:
     def __init__(self):
         self._color = None
@@ -42,6 +44,7 @@ class BasicPrintBuilder:
         return self
 
 
+# an extended class of the BasicPrintBuilder but with extended setters
 class WeatherReportBuilder(BasicPrintBuilder):
     def __init__(self):
         super().__init__()
@@ -61,7 +64,8 @@ class WeatherReportBuilder(BasicPrintBuilder):
         self._embed.set_thumbnail(url=WeatherApi.API.get_weather_icon(sorted_urls[0][0]))
         return self
 
-    # Adding arguments to the embed
+    # this function lets us add custom fields to an embed in an easier way
+    # it waits for dictionaries
     def __add__(self, other):
         if isinstance(other, dict) and "empty" in other.keys():
             self._embed.add_field(name='\u200b', value='\u200b', inline=True)
