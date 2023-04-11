@@ -5,8 +5,8 @@
 ----
 
 ## Description
-This project is a discord chatbot written in python. The purpuse of this application is to provide fast and easy access
-basic weather data.
+This project is a discord chatbot written in python. The purpose of this application is to provide fast and easy access
+to basic weather data.
 
 ----
 
@@ -18,7 +18,7 @@ basic weather data.
 - Get current weather from a city of your choice
 - Get weather conditions for the whole day from a city of you choice
 
-*Disclaimer: weather data querying works with only hungarian cities.
+*Disclaimer: weather data querying works only with hungarian cities.
 International querying has not been implemented yet.*
 
 ----
