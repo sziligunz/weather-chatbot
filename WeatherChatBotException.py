@@ -1,3 +1,5 @@
+# basic exception's, nothing fancy about them
+
 class ChatBotException(Exception):
     def __init__(self, message):
         super().__init__(self)
