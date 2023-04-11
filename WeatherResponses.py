@@ -2,11 +2,11 @@ import datetime
 import json
 import pathlib
 import time
-
-from discord import Message, Embed, Colour
 import functools
 
-from EmbedBuilder import *
+from discord import Message, Colour
+
+from EmbedBuilder import BasicPrintBuilder, WeatherReportBuilder
 from WeatherChatBotException import ChatBotException, WeatherApiException
 from WeatherApi import API
 
@@ -92,7 +92,7 @@ class Responses:
             await message.channel.send(embed=self.bb.new().title("Couldn't find Miki!").color(Colour.red()).build())
         else:
             await message.channel.send(f"{_user.mention}")
-            await message.channel.send(embed=self.bb.new().title(f"Miki is beautiful!").color(Colour.teal()).build())
+            await message.channel.send(embed=self.bb.new().title("Miki is beautiful!").color(Colour.teal()).build())
 
     @chatbot_response
     @interactive
@@ -221,8 +221,8 @@ class Responses:
             .title("Today's Weather Conditions")\
             .color(11342935)\
             .set_most_common_thumbnail(today)\
-            .description(f"Forecasts from "
-                         f"{datetime.datetime.fromtimestamp(today[0]['dt']).strftime('%m-%d %H:%M')} to "
+            .description("Forecasts from " +
+                         f"{datetime.datetime.fromtimestamp(today[0]['dt']).strftime('%m-%d %H:%M')} to " +
                          f"{datetime.datetime.fromtimestamp(today[-1]['dt']).strftime('%m-%d %H:%M')}")
         if "city_name" in kwargs.keys():
             self.wrb.location(f"Report from {kwargs['city_name']}")
@@ -259,14 +259,13 @@ class Responses:
             .attach_location(self.API)
         for i in today:
             if "rain" in i.keys():
-                self.wrb.description(f"There will be rain today.")\
+                self.wrb.description("There will be rain today.")\
                     .thumbnail(API.get_weather_icon(i["weather"][0]["icon"]))
                 break
             elif "snow" in i.keys():
-                self.wrb.description(f"There will be snow today.")\
+                self.wrb.description("There will be snow today.")\
                     .thumbnail(API.get_weather_icon(i["weather"][0]["icon"]))
                 break
-        _index = 0
         for i in today:
             if "rain" in i.keys():
                 self.wrb + {"name": "Time", "value": f"{datetime.datetime.fromtimestamp(i['dt']).strftime('%H:%M')}"}\

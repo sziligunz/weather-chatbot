@@ -27,3 +27,33 @@ International querying has not been implemented yet.*
 
 - International weather forecast querying
 - Weather images
+
+----
+
+## Flake8
+
+- `WeatherBot.py`:
+  - line too long
+- `WeatherResponses.py`:
+  - line too long
+- `WeatherApi.py`:
+  - line too long
+- `EmbedBuilder.py`:
+  - line too long
+- `WeatherChatBotException.py`:
+  - ✅
+
+----
+
+## Pep8
+
+- `WeatherBot.py`:
+  - line too long
+- `WeatherResponses.py`:
+  - line too long
+- `WeatherApi.py`:
+  - line too long
+- `EmbedBuilder.py`:
+  - line too long
+- `WeatherChatBotException.py`:
+  - line too long

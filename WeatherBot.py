@@ -1,6 +1,6 @@
-import discord
 import pathlib
 import json
+import discord
 from discord import Colour
 
 from EmbedBuilder import BasicPrintBuilder
@@ -32,7 +32,7 @@ intents.members = True  # very important setting, otherwise bot wouldn't see oth
 intents.message_content = True
 client = discord.Client(intents=intents)
 LOCATION_NAME = ""
-responses: Responses = Responses()
+responses = Responses()
 
 
 @client.event
