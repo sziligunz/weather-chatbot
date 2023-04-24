@@ -82,14 +82,14 @@ International querying has not been implemented yet.*
    1. `discord-token.json`:
       ```javascript
       {
-        "token": "MTA5MjQyNjM5MjIwMjkxOTk5Nw.GMKWh1.GE3opKoPCjkf1Cex-lQNoTl6AgJ8qZ7pxrYTwU",
+        "token": "<discord-token-goes-here>",
         "creation-time": "2023-04-03T14:44:00"
       }
       ```
    2. `weather-token.json`:
       ```javascript
       {
-        "token": "5fa35ae8d45a16ee2ac3f922580e8bef",
+        "token": "<weather-token-goes-here",
         "creation-time": "2023-04-04T15:11:00"
       }
       ```
