@@ -295,7 +295,9 @@ class Responses:
             + {"name": "current location", "value": "Prints the current forecast location.", "inline": "False"}\
             + {"name": "now", "value": "Prints the current weather conditions.", "inline": "False"}\
             + {"name": "today", "value": "Prints today's weather conditions", "inline": "False"}\
-            + {"name": "rain", "value": "Prints if there's going to be any rain today.", "inline": "False"}
+            + {"name": "rain", "value": "Prints if there's going to be any rain today.", "inline": "False"}\
+            + {"name": "now city", "value": "Asks for a city's name and prints out the current weather condition.", "inline": "False"}\
+            + {"name": "today city", "value": "Asks for a city's name and prints out the day's weather condition.", "inline": "False"}
         await message.channel.send(embed=self.wrb.build())
 
     @chatbot_response
